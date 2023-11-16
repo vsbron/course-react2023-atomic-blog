@@ -14,6 +14,7 @@ Small app that generates random blog posts and allow use to delete it or add new
 - Built in React;
 - Faker library is used to generate fake posts;
 - Replaced the prop drilling with the Context API;
+- All the Context API are moved to a separate component;
 
 ## Live version
 

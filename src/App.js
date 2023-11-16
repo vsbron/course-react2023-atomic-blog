@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
+import { PostProvider, usePosts } from "./PostContext";
 
+// Helper function
 function createRandomPost() {
   return {
     title: `${faker.hacker.adjective()} ${faker.hacker.noun()}`,
@@ -8,34 +10,11 @@ function createRandomPost() {
   };
 }
 
-// 1) Create a new Context (for posts)
-const PostContext = createContext();
-
 function App() {
-  const [posts, setPosts] = useState(() =>
-    Array.from({ length: 30 }, () => createRandomPost())
-  );
-  const [searchQuery, setSearchQuery] = useState("");
+  // Creating state value
   const [isFakeDark, setIsFakeDark] = useState(false);
 
-  // Derived state. These are the posts that will actually be displayed
-  const searchedPosts =
-    searchQuery.length > 0
-      ? posts.filter((post) =>
-          `${post.title} ${post.body}`
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase())
-        )
-      : posts;
-
-  function handleAddPost(post) {
-    setPosts((posts) => [post, ...posts]);
-  }
-
-  function handleClearPosts() {
-    setPosts([]);
-  }
-
+  // Handler function
   function handleClick() {
     setIsFakeDark((isFakeDark) => !isFakeDark);
   }
@@ -49,33 +28,23 @@ function App() {
   );
 
   return (
-    // 2) Provide value to child components
-    <PostContext.Provider
-      value={{
-        posts: searchedPosts,
-        onAddPost: handleAddPost,
-        onClearPosts: handleClearPosts,
-        searchQuery,
-        setSearchQuery,
-      }}
-    >
-      <section>
-        <button onClick={handleClick} className="btn-fake-dark-mode">
-          {isFakeDark ? "☀️" : "🌙"}
-        </button>
-
+    <section>
+      <button onClick={handleClick} className="btn-fake-dark-mode">
+        {isFakeDark ? "☀️" : "🌙"}
+      </button>
+      <PostProvider>
         <Header />
         <Main />
         <Archive />
         <Footer />
-      </section>
-    </PostContext.Provider>
+      </PostProvider>
+    </section>
   );
 }
 
 function Header() {
-  // Get the state from Context API
-  const { onClearPosts } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { onClearPosts } = usePosts();
 
   return (
     <header>
@@ -92,8 +61,8 @@ function Header() {
 }
 
 function SearchPosts() {
-  // Get the state from Context API
-  const { searchQuery, setSearchQuery } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { searchQuery, setSearchQuery } = usePosts();
 
   return (
     <input
@@ -105,8 +74,8 @@ function SearchPosts() {
 }
 
 function Results() {
-  // Get the state from Context API
-  const { posts } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { posts } = usePosts();
 
   return <p>🚀 {posts.length} atomic posts found</p>;
 }
@@ -121,8 +90,8 @@ function Main() {
 }
 
 function Posts() {
-  // Get the state from Context API
-  const { posts } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { posts } = usePosts();
   return (
     <section>
       <List posts={posts} />
@@ -134,8 +103,8 @@ function FormAddPost() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 
-  // Get the state from Context API
-  const { onAddPost } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { onAddPost } = usePosts();
 
   const handleSubmit = function (e) {
     e.preventDefault();
@@ -163,8 +132,8 @@ function FormAddPost() {
 }
 
 function List() {
-  // Get the state from Context API
-  const { posts } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { posts } = usePosts();
 
   return (
     <ul>
@@ -190,8 +159,8 @@ function Archive() {
 
   const [showArchive, setShowArchive] = useState(false);
 
-  // Get the state from Context API
-  const { onAddPost } = useContext(PostContext);
+  // Get the state from Context API with custom hook
+  const { onAddPost } = usePosts();
 
   return (
     <aside>
